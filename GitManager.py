@@ -1,11 +1,13 @@
 import git 
-from WifiSearch import *
+
 
 def GitPull():
 
-	if internet_on():
-		repo = git.Repo()
-		o = repo.remotes.origin
-		o.pull()
-		print 'Git pull successful.'
+	repo = git.Repo()
+	o = repo.remotes.origin
+	o.pull()
 
+def GitPush():
+	repo = git.Repo()
+	o = repo.remotes.origin
+	o.push()
