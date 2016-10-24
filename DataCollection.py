@@ -8,6 +8,8 @@ import sqlite3
 import time
 
 #import sensor libraries
+#some settings in the libraries can be configured
+#you might want to take a look at the libraries src files
 from adxl345 import ADXL345
 from gps import *
 
@@ -16,6 +18,7 @@ from UploadManagerV3 import *
 from ConnectionManager import *
 from GitManager import *
 
+#hard coded path so that we know where to put the files at to identify the volunteer with an integer
 sys.path.insert(0, '/home/pi/')
 import User
 sys.path.insert(0, '/home/pi/rpi-latest')
@@ -41,7 +44,7 @@ running = True #setting the thread running to true
 
 adxl345 = ADXL345() #initialize library for accelerometer
 
-# hardcoded userId reflects who is the volunteer, 0 is for administrator
+# hardcoded userId reflects who is the volunteer, 99 is for administrator
 userId = User.id
 
 uploadInterval = 60 #in seconds
@@ -58,7 +61,7 @@ def OnInterval():
 		
 				uploading = True
 				UploadData()
-				GitPull()
+				#GitPull()
 				
 				uploading = False
 		
@@ -75,6 +78,7 @@ def OnInterval():
 		print e
 		uploading = False
 
+#with the specified uploadInterval, do a git pull
 def OTA_Update():
 
 	threading.Timer(uploadInterval,OTA_Update).start()
@@ -91,7 +95,6 @@ CreateTables(cursorGps, cursorAccel)
 
 OTA_Update()
 OnInterval()
-
 
 #main infinite loop
 while True:
@@ -148,7 +151,6 @@ while True:
 					
 			print numSatellites
 			
-
 		except (KeyboardInterrupt, SystemExit): #when you press ctrl+c
 			
 			print "\nKilling Thread..."
@@ -162,10 +164,6 @@ while True:
 	
 		try:
 			
-			
-				
-			#latitude = 1.123123
-			#longitude = 102.123123
 			#record sensor readings only if there is gps fix
 			if str(latitude) == 'nan' or latitude == 0.0:
 				latitude = 0
