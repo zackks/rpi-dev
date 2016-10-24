@@ -75,9 +75,20 @@ def OnInterval():
 		print e
 		uploading = False
 
+def OTA_Update():
+
+	threading.Timer(uploadInterval,OTA_Update).start()
+	
+	try:
+		GitPull()
+	except Exception, er:
+		print 'Problem pulling updates...'
+		print e
+
 #opens and get ready sqlite for writing of sensor values
 CreateTables(cursorGps, cursorAccel)
 
+OTA_Update()
 OnInterval()
 
 
