@@ -80,6 +80,7 @@ def OTA_Update():
 	threading.Timer(uploadInterval,OTA_Update).start()
 	
 	try:
+		print 'Git pulling on another thread...'
 		GitPull()
 	except Exception, er:
 		print 'Problem pulling updates...'
