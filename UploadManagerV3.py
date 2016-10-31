@@ -5,7 +5,6 @@ from WifiSearch import *
 import threading
 import urllib2
 import json
-import time
 
 def UploadData():
 	
@@ -40,26 +39,57 @@ def UploadData():
 			dataCoord = []
 			dataAxis =[]
 			
+			for rowGps in cursorGps:
+						  
+				userId = rowGps[0]
+				timestampRaw = rowGps[1]
+				timestampRaw = str(timestampRaw)
+				if timestampRaw == "0":
+					print timestampRaw
+					timestamp= "0"
+				else:
+					timestamp = timestampRaw[:10] + 'T' + timestampRaw[11:] + 'Z'
+				latitude = rowGps[2]
+				longitude = rowGps[3]
+				numSat = rowGps[4]
+						  
+				dataCoord = dataCoord + [
+				  {
+					 "userId": str(userId),
+					 "timestamp": str(timestamp),
+					 "latitude": str(latitude),
+					 "longitude":str(longitude),
+					 "numSat": str(numSat)
+				  }
+				]
+			
+			print dataCoord
+			print 'GPS sqlite data extracted. Attempting to POST GPS data...'
+			reqCoord = urllib2.Request('http://wheelroutes.icitylab.com/rest/coordinate/coordinates')
+			reqCoord.add_header('Content-Type', 'application/json')
+			
+			responseGPS = urllib2.urlopen(reqCoord,json.dumps(dataCoord))
+			
+			print 'Extracting axis sqlite data...'
+			
 			#for each  accelerometer sensor data entry, break it up and insert into database
 			for rowAccel in cursorAccel:
 				userId = rowAccel[0]
 				timestampRaw = rowAccel[1]
-				timestampRaw = str(timestampRaw[:23])
+				timestampRaw = str(timestampRaw)
 				if timestampRaw == "0":
-					#print timestampRaw
+					print timestampRaw
 					timestamp= "0"
 				else:
-					timestamp = timestampRaw[:10] + 'T' + timestampRaw[11:23] + 'Z'
+					timestamp = timestampRaw[:10] + 'T' + timestampRaw[11:] + 'Z'
 				xAxis = rowAccel[2]
 				yAxis = rowAccel[3]
 				zAxis = rowAccel[4]
-				
-				#print str(timestamp)
-				
+						  
 				dataAxis = dataAxis + [
 				  {
 					 "userId": str(userId),
-					 "timestamp": str(timestampRaw),
+					 "timestamp": str(timestamp),
 					 "xAxis": str(xAxis),
 					 "yAxis":str(yAxis),
 					 "zAxis": str(zAxis)
@@ -72,44 +102,7 @@ def UploadData():
 			reqAxis.add_header('Content-Type', 'application/json')
 				
 			responseAxis = urllib2.urlopen(reqAxis, json.dumps(dataAxis))
-			
-			print 'Axis data posted.'
-			
-			
-			for rowGps in cursorGps:
-						  
-				userId = rowGps[0]
-				timestampRaw = rowGps[1]
-				timestampRaw = str(timestampRaw[:23])
-				if timestampRaw == "0":
-					#print timestampRaw
-					timestamp= "0"
-				else:
-					timestamp = timestampRaw[:10] + 'T' + timestampRaw[11:23] + 'Z'
-				latitude = rowGps[2]
-				longitude = rowGps[3]
-				numSat = rowGps[4]
-						  
-				dataCoord = dataCoord + [
-				  {
-					 "userId": str(userId),
-					 "timestamp": str(timestampRaw),
-					 "latitude": str(latitude),
-					 "longitude":str(longitude),
-					 "numSat": str(numSat)
-				  }
-				]
-			
-			#print dataCoord
-			print 'GPS sqlite data prepared, waiting for axis to be processed before uploading coord data...'
-			
-			print 'Attempting to POST GPS data...'
-			reqCoord = urllib2.Request('http://wheelroutes.icitylab.com/rest/coordinate/coordinates')
-			reqCoord.add_header('Content-Type', 'application/json')
-			
-			responseGPS = urllib2.urlopen(reqCoord,json.dumps(dataCoord))
-			
-
+				
 			print "Values uploaded. Attempting to DROP tables..."
 			
 			DropTables(cursorGps, cursorAccel)
