@@ -14,7 +14,7 @@ from adxl345 import ADXL345
 from gps import *
 
 #import self coded python scripts
-from UploadManager import *
+from UploadManagerV3 import *
 from ConnectionManager import *
 from GitManager import *
 
@@ -49,6 +49,16 @@ userId = User.id
 
 uploadInterval = 60 #in seconds
 frequency = 10 #no of times per while loop for accelerometer
+
+#while(True):
+	#axes = adxl345.getAxes(True)
+	#print "   x = %.3fG" % ( axes['x'] ) + "  y = %.3fG" % (axes['y']) + "  z = %.3fG" % ( axes['z'] )
+	#print "   x = %.3fG" % ( axes['x'] )
+	
+	#resultant = math.sqrt((axes['x'] * axes['x']) + (axes['y'] * axes['y']) + (axes['z']* axes['z']))
+	
+	#print 'resultant: ', resultant
+	#time.sleep(0.1)
 
 #searches for internet connection & upload data to database in intervals
 def OnInterval():
@@ -88,7 +98,7 @@ def OTA_Update():
 		GitPull()
 	except Exception, er:
 		print 'Problem pulling updates...'
-		print e
+		print er
 
 #opens and get ready sqlite for writing of sensor values
 CreateTables(cursorGps, cursorAccel)
